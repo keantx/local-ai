@@ -1,0 +1,8 @@
+model_list:
+  - model_name: qwen3.5:9b
+    litellm_params:
+      model: ollama_chat/qwen3.5:9b
+      api_base: http://host.docker.internal:11434
+
+general_settings:
+  disable_env_credential_login: true
