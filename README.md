@@ -18,8 +18,8 @@ Ollama should run metal
 
 ## Usage
 ```bash
-# Start the stack, by default it is not detached
-./scripts/start.sh
+# Start the stack, -d is for detached, -f not detached
+./scripts/start.sh -f
 
 # Stop and clean up
 ./scripts/destroy.sh
