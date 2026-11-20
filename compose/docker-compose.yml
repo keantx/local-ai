@@ -25,8 +25,12 @@ services:
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?.env}
       DATABASE_URL: postgresql://litellm:${POSTGRES_PASSWORD:-litellm}@db:5432/litellm
       STORE_MODEL_IN_DB: "True"
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      CONTEXT7_API_KEY: ${CONTEXT7_API_KEY:-}
     volumes:
       - ../config/litellm_config.yaml:/app/config.yaml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     depends_on:
       db:
@@ -50,7 +54,7 @@ services:
 
   open-webui:
     container_name: openwebui
-    image: ghcr.io/open-webui/open-webui:main
+    image: ghcr.io/open-webui/open-webui:slim
     ports:
       - "3000:8080"
     volumes:
@@ -63,6 +67,13 @@ services:
       OPENAI_API_BASE_URL: http://litellm:4000/v1
       OPENAI_API_KEY: ${OPENWEBUI_LITELLM_KEY:?.env}
       ENABLE_OLLAMA_API: "false"
+      ENABLE_PERSISTENT_CONFIG: "false"
+      TOOL_SERVER_CONNECTIONS: >-
+        [{"id":"litellm","type":"mcp",
+        "url":"http://litellm:4000/mcp","path":"",
+        "auth_type":"bearer","key":"${OPENWEBUI_LITELLM_KEY}",
+        "config":{"enable":true,"access_grants":[{"principal_type":"user","principal_id":"*","permission":"read"}]},
+        "info":{"id":"litellm","name":"context7","description":"Context7 and other MCP tools via LiteLLM"}}]
     restart: unless-stopped
     depends_on:
       litellm-init:

@@ -56,7 +56,7 @@ if [ "$code" = "200" ]; then
 else
   echo "registering openwebui key..."
   resp=$(curl -s -w '\n%{http_code}' -X POST "$BASE/key/generate" -H "$AUTH" -H "$JSON" \
-    -d '{"key":"'"$OPENWEBUI_LITELLM_KEY"'","key_alias":"openwebui","models":["qwen3.5:9b"],"user_id":"'"$ADMIN_USER_ID"'"}')
+    -d '{"key":"'"$OPENWEBUI_LITELLM_KEY"'","key_alias":"openwebui","models":["all-proxy-models"],"user_id":"'"$ADMIN_USER_ID"'"}')
   code=$(echo "$resp" | tail -n1)
   body=$(echo "$resp" | sed '$d')
   [ "$code" = "200" ] || { echo "key/generate failed ($code): $body"; exit 1; }

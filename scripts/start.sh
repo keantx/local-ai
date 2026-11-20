@@ -20,11 +20,33 @@ add_if_missing ADMIN_PASSWORD "Aa!$(openssl rand -hex 16)"
 add_if_missing WEBUI_SECRET_KEY  "$(openssl rand -hex 32)"
 add_if_missing OPENWEBUI_LITELLM_KEY "sk-$(openssl rand -hex 24)"
 
-DETACH="-d"
-case "${1:-}" in
-  -f|--foreground|--attached) DETACH="" ;;
-  -d|--detach|"")             DETACH="-d" ;;
-  *) echo "Usage: $0 [-d|--detach] [-f|--foreground]" >&2; exit 1 ;;
-esac
+for k in OPENROUTER_API_KEY CONTEXT7_API_KEY PLACEHOLDER2_API_KEY; do ## if u want, need to add the variable to compose to so litellm config can see it
+  add_if_missing "$k" ""
+  if [ -z "$(grep "^$k=" .env | cut -d= -f2-)" ]; then
+    echo "Note: $k is empty in .env" >&2
+  fi
+done
 
-docker compose --env-file .env -f ../compose/docker-compose.yml up $DETACH
+usage() {
+  echo "Usage: $0 [-d|--detach] [-f|--foreground] [-r|--recreate]" >&2
+  echo "  default: foreground; -r force-recreates the litellm container" >&2
+}
+
+DETACH=""
+RECREATE=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -d|--detach)                DETACH="-d" ;;
+    -f|--foreground|--attached) DETACH="" ;;
+    -r|--recreate)              RECREATE=1 ;;
+    -h|--help)                  usage; exit 0 ;;
+    *) usage; exit 1 ;;
+  esac
+  shift
+done
+
+ARGS=(up)
+[ -n "$DETACH" ] && ARGS+=("$DETACH")
+[ "$RECREATE" -eq 1 ] && ARGS+=(--force-recreate litellm open-webui)
+
+docker compose --env-file .env -f ../compose/docker-compose.yml "${ARGS[@]}"
