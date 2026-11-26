@@ -1,5 +1,24 @@
 name: local-ai-stack
 services:
+  # Enable this if you have obsidian second-brain
+  # second-brain-mcp:
+  #   container_name: second-brain
+  #   image: node:24-alpine
+  #   command:
+  #     - npx
+  #     - -y
+  #     - "@modelcontextprotocol/server-filesystem"
+  #     - --transport
+  #     - streamable-http
+  #     - /vault
+  #   environment:
+  #     HOST: "0.0.0.0"
+  #     PORT: "3001"
+  #   volumes:
+  #     - type: bind
+  #       source: ${SECOND_BRAIN_PATH:-}
+  #       target: /vault
+  #   restart: unless-stopped
   db:
     container_name: litellm-DB
     image: postgres:16
@@ -29,12 +48,16 @@ services:
       CONTEXT7_API_KEY: ${CONTEXT7_API_KEY:-}
     volumes:
       - ../config/litellm_config.yaml:/app/config.yaml:ro
+      - ../config/custom_callbacks.py:/app/custom_callbacks.py:ro
+      - ../config/prompts:/app/prompts:ro
     extra_hosts:
       - host.docker.internal:host-gateway
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     depends_on:
       db:
         condition: service_healthy
+      # second-brain-mcp:
+      #   condition: service_started
 
   litellm-init:
     container_name: litellm-init
@@ -69,11 +92,11 @@ services:
       ENABLE_OLLAMA_API: "false"
       ENABLE_PERSISTENT_CONFIG: "false"
       TOOL_SERVER_CONNECTIONS: >-
-        [{"id":"litellm","type":"mcp",
+        [{"id":"second_brain","type":"mcp",
         "url":"http://litellm:4000/mcp","path":"",
-        "auth_type":"bearer","key":"${OPENWEBUI_LITELLM_KEY}",
+        "auth_type":"bearer","key":"${OPENWEBUI_LITELLM_KEY}","config": { "enable": true },
         "config":{"enable":true,"access_grants":[{"principal_type":"user","principal_id":"*","permission":"read"}]},
-        "info":{"id":"litellm","name":"context7","description":"Context7 and other MCP tools via LiteLLM"}}]
+        "info":{"id":"second_brain","name":"second_brain","description":"second_brain obsidian MCP via LiteLLM"}}]
     restart: unless-stopped
     depends_on:
       litellm-init:

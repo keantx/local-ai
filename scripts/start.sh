@@ -19,8 +19,9 @@ add_if_missing ADMIN_EMAIL     "admin@local.dev"
 add_if_missing ADMIN_PASSWORD "Aa!$(openssl rand -hex 16)"
 add_if_missing WEBUI_SECRET_KEY  "$(openssl rand -hex 32)"
 add_if_missing OPENWEBUI_LITELLM_KEY "sk-$(openssl rand -hex 24)"
+# add_if_missing SECOND_BRAIN_PATH "/mnt/c/Users/sample-user/example2/Documents/second-brain" #adjust to your obsidian vault
 
-for k in OPENROUTER_API_KEY CONTEXT7_API_KEY PLACEHOLDER2_API_KEY; do ## if u want, need to add the variable to compose to so litellm config can see it
+for k in OPENROUTER_API_KEY CONTEXT7_API_KEY PLACEHOLDER2_API_KEY; do # if u want, add the variable to compose to so litellm config can see it
   add_if_missing "$k" ""
   if [ -z "$(grep "^$k=" .env | cut -d= -f2-)" ]; then
     echo "Note: $k is empty in .env" >&2

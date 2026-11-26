@@ -4,6 +4,14 @@ model_list:
       model: openrouter/google/gemma-4-26b-a4b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
 
+  - model_name: gpt-oss:20b_local
+    litellm_params:
+      model: ollama_chat/gpt-oss:20b
+      api_base: http://host.docker.internal:11434
+      timeout: 180
+      stream_timeout: 180
+      num_retries: 0
+
   - model_name: qwen3.5:9b_local
     litellm_params:
       model: ollama_chat/qwen3.5:9b
@@ -16,14 +24,16 @@ router_settings:
   num_retries: 1
   timeout: 60
   fallbacks:
-    - gemma-4-26b-a4b_openrouter: ["qwen3.5:9b_local"]
+    - gemma-4-26b-a4b_openrouter: ["gpt-oss:20b_local", "qwen3.5:9b_local"]
 
-mcp_servers:
-  context7:
-    url: "https://mcp.context7.com/mcp"
-    transport: "http"
-    auth_type: "bearer_token"
-    auth_value: os.environ/CONTEXT7_API_KEY
+# Enable this if you have second-brain
+# mcp_servers:
+#   second_brain:
+#     transport: "http"
+#     url: "http://second-brain-mcp:3001/mcp"
 
 general_settings:
   disable_env_credential_login: true
+
+litellm_settings:
+  callbacks: custom_callbacks.proxy_handler_instance
