@@ -1,24 +1,24 @@
 name: local-ai-stack
 services:
   # Enable this if you have obsidian second-brain
-  # second-brain-mcp:
-  #   container_name: second-brain
-  #   image: node:24-alpine
-  #   command:
-  #     - npx
-  #     - -y
-  #     - "@modelcontextprotocol/server-filesystem"
-  #     - --transport
-  #     - streamable-http
-  #     - /vault
-  #   environment:
-  #     HOST: "0.0.0.0"
-  #     PORT: "3001"
-  #   volumes:
-  #     - type: bind
-  #       source: ${SECOND_BRAIN_PATH:-}
-  #       target: /vault
-  #   restart: unless-stopped
+  second-brain-mcp:
+    container_name: second-brain
+    image: node:24-alpine
+    command:
+      - npx
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - --transport
+      - streamable-http
+      - /vault
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3001"
+    volumes:
+      - type: bind
+        source: ${SECOND_BRAIN_PATH:-}
+        target: /vault
+    restart: unless-stopped
   db:
     container_name: litellm-DB
     image: postgres:16
@@ -56,8 +56,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      # second-brain-mcp:
-      #   condition: service_started
+      second-brain-mcp:
+        condition: service_started
 
   litellm-init:
     container_name: litellm-init

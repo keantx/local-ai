@@ -1,36 +1,64 @@
 model_list:
-  - model_name: gemma-4-26b-a4b_openrouter
+  # mock GPT Pricing astra
+  - model_name: GPT_qwen3.8:9b-uncr
     litellm_params:
-      model: openrouter/google/gemma-4-26b-a4b-it:free
-      api_key: os.environ/OPENROUTER_API_KEY
-
-  - model_name: gpt-oss:20b_local
-    litellm_params:
-      model: ollama_chat/gpt-oss:20b
-      api_base: http://host.docker.internal:11434
+      model: lm_studio/qwen3.8-uncensored
+      api_base: http://host.docker.internal:1234/v1
       timeout: 180
       stream_timeout: 180
       num_retries: 0
+    model_info:
+      input_cost_per_token: 0.00001
+      output_cost_per_token: 0.00005
+      cache_read_input_token_cost: 0.000001
+      cache_creation_input_token_cost: 0.0000125
 
-  - model_name: qwen3.5:9b_local
+  # mock claude pricing opus 5.5
+  - model_name: Claude_qwen3.8:9b-uncr
     litellm_params:
-      model: ollama_chat/qwen3.5:9b
-      api_base: http://host.docker.internal:11434
+      model: lm_studio/qwen3.8-uncensored
+      api_base: http://host.docker.internal:1234/v1
       timeout: 180
       stream_timeout: 180
       num_retries: 0
+    model_info:
+      input_cost_per_token: 0.000004
+      output_cost_per_token: 0.00002
+      cache_read_input_token_cost: 0.0000002
+      cache_creation_input_token_cost: 0.000005
 
-router_settings:
-  num_retries: 1
-  timeout: 60
-  fallbacks:
-    - gemma-4-26b-a4b_openrouter: ["gpt-oss:20b_local", "qwen3.5:9b_local"]
+#   - model_name: gemma-4-26b-a4b_openrouter
+#     litellm_params:
+#       model: openrouter/google/gemma-4-26b-a4b-it:free
+#       api_key: os.environ/OPENROUTER_API_KEY
+
+#   - model_name: gpt-oss:20b_local
+#     litellm_params:
+#       model: ollama_chat/gpt-oss:20b
+#       api_base: http://host.docker.internal:11434
+#       timeout: 180
+#       stream_timeout: 180
+#       num_retries: 0
+
+#   - model_name: qwen3.5:9b_local
+#     litellm_params:
+#       model: ollama_chat/qwen3.5:9b
+#       api_base: http://host.docker.internal:11434
+#       timeout: 180
+#       stream_timeout: 180
+#       num_retries: 0
+
+# router_settings:
+#   num_retries: 1
+#   timeout: 60
+#   fallbacks:
+#     - gemma-4-26b-a4b_openrouter: ["gpt-oss:20b_local", "qwen3.5:9b_local"]
 
 # Enable this if you have second-brain
-# mcp_servers:
-#   second_brain:
-#     transport: "http"
-#     url: "http://second-brain-mcp:3001/mcp"
+mcp_servers:
+  second_brain:
+    transport: "http"
+    url: "http://second-brain-mcp:3001/mcp"
 
 general_settings:
   disable_env_credential_login: true
